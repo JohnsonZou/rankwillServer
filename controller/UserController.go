@@ -1,14 +1,14 @@
 package controller
 
 import (
-	"rankwillServer/common"
-	"rankwillServer/dto"
-	"rankwillServer/model"
-	"rankwillServer/response"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"log"
 	"net/http"
+	"rankwillServer/common"
+	"rankwillServer/dto"
+	"rankwillServer/model"
+	"rankwillServer/response"
 	"regexp"
 )
 
@@ -50,7 +50,6 @@ func Register(c *gin.Context) {
 		return
 	}
 	newUser := model.User{
-		Username: username,
 		Email:    email,
 		Password: password,
 	}
@@ -83,62 +82,6 @@ func Login(c *gin.Context) {
 func Info(c *gin.Context) {
 	user, _ := c.Get("user")
 	response.Success(c, gin.H{"code": 200, "data": gin.H{"user": dto.ToUserDto(user.(model.User))}}, "UserInfo request successfully")
-}
-
-func Follow(c *gin.Context) {
-	user, _ := c.Get("user")
-	uname := user.(model.User).Username
-	lcusername := c.PostForm("username")
-	if lcusername == "" {
-		response.Fail(c, nil, "Empty leetcode username")
-		return
-	}
-	db := common.GetDB()
-	if isFollowExisted(db, uname, lcusername) {
-		response.Fail(c, nil, "Duplicated follow")
-		return
-	}
-	f := model.Following{
-		Username:   uname,
-		Lcusername: lcusername,
-	}
-	db.Create(&f)
-	response.Success(c, nil, "Successfully follow")
-}
-func Unfollow(c *gin.Context) {
-	user, _ := c.Get("user")
-	uname := user.(model.User).Username
-	lcusername := c.PostForm("username")
-	if lcusername == "" {
-		response.Fail(c, nil, "Empty leetcode username")
-		return
-	}
-	db := common.GetDB()
-	if isFollowExisted(db, uname, lcusername) {
-		db.Where("username=?", uname).Where("lcusername=?", lcusername).Delete(&model.Following{})
-		response.Success(c, nil, "Successfully unfollow")
-		return
-	}
-	response.Fail(c, nil, "Leetcode user not exist")
-}
-func GetFollowing(c *gin.Context) {
-	user, _ := c.Get("user")
-	uname := user.(model.User).Username
-	contestname := c.PostForm("contestname")
-	if contestname == "" {
-		response.Fail(c, nil, "Empty contest name")
-		return
-	}
-	db := common.GetDB()
-	var res []model.Contestant
-	var fol []model.Following
-	db.Where("username=?", uname).Find(&fol)
-	for _, v := range fol {
-		curname := v.Lcusername
-		db.Where("contestname=?", contestname).Where("username=?", curname).Find(&res)
-	}
-	response.Success(c, gin.H{"result": res}, "Successfully get following")
-
 }
 
 //func GetFollowing

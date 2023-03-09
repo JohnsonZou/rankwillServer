@@ -1,17 +1,19 @@
 package middleware
 
 import (
+	"github.com/gin-gonic/gin"
+	"log"
+	"net/http"
 	"rankwillServer/common"
 	"rankwillServer/model"
 	"rankwillServer/response"
-	"github.com/gin-gonic/gin"
-	"net/http"
 	"strings"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
+		log.Println(tokenString)
 		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer") {
 			response.Response(c, http.StatusUnauthorized, 401, nil, "Unauthorized token")
 			c.Abort()

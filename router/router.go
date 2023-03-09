@@ -16,6 +16,6 @@ func CollectRoute(r *gin.Engine) *gin.Engine {
 	r.POST("/api/auth/unfollow", middleware.AuthMiddleware(), controller.Unfollow)
 	r.POST("/api/auth/getfollowing", middleware.AuthMiddleware(), controller.GetFollowing)
 	r.POST("/api/getcontestbypage", controller.GetContest)
-
+	r.POST("/api/auth/getfollowlist", middleware.AuthMiddleware(), controller.GetFollowList)
 	return r
 }
